@@ -1,0 +1,57 @@
+#!/bin/env python
+
+import argparse
+import json
+import norris
+import sys
+
+# parse command line arguments
+
+parser = argparse.ArgumentParser( description = 'Norris command line utility' )
+parser.add_argument( '-c', '--config', default = '~/.norris', help = 'path to configuration file' )
+parser.add_argument( '-p', '--project', help = 'jira project key' )
+parser.add_argument( '-a', '--activity', help = 'jira activity key' )
+parser.add_argument( '-i', '--issue', help = 'jira issue key' )
+parser.add_argument( '--lifecycle', action = 'store_const', const = True, help = 'output issue lifecycle' )
+parser.add_argument( '--transitions', action = 'store_const', const = True, help = 'output issue transitions' )
+parser.add_argument( '--flow', action = 'store_const', const = True, help = 'output daily snapshot of activity flow' )
+args = parser.parse_args()
+
+# load configuration
+
+config = json.load( open( args.config ) )
+
+# create connection to jira instance
+
+instance = norris.configure_and_connect( url = config["jira"]["url"],
+                                         user = config["jira"]["user"],
+                                         passwd = config["jira"]["passwd"] )
+print instance
+
+# dispatch to appropriate methods
+
+if args.project:
+    project = instance.project( key = args.project )
+    print project
+
+if args.activity:
+    activity = project.activity( key = args.activity )
+    print activity
+
+if args.flow:
+    flow = activity.flow
+    print flow
+
+if args.issue:
+    issue = activity.issue( key = args.issue )
+    print issue
+
+if args.lifecycle:
+    lifecycle = issue.lifecycle
+    print lifecycle
+
+if args.transitions:
+    transitions = issue.transitions
+    print transitions
+
+sys.exit( 0 )

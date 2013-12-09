@@ -1,0 +1,7 @@
+{
+    "jira": {
+    	"url":    "[*** REMOTE JIRA URL ***]",
+    	"user":   "[*** REMOTE JIRA USER ***]",
+    	"passwd": "[*** REMOTE JIRA PASSWD ***]"
+    }
+}
