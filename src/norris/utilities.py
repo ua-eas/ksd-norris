@@ -16,4 +16,19 @@ class Utilities( object ):
     @staticmethod    
     def timedelta_to_days( timedelta ):
         return ( timedelta.total_seconds() / 86400 )
+    
+    @staticmethod
+    def to_unicode( obj, encoding = 'utf-8' ):
+        if isinstance( obj, basestring ):
+            if not isinstance( obj, unicode ):
+                obj = unicode( obj, encoding )
+        return obj
 
+    @staticmethod
+    def indent( block1, n = 0 ):
+        spacer = ( ' ' * n )
+        block2 = spacer.join( block1.splitlines( True ) )
+        block2 = spacer + block2
+        return block2
+
+    

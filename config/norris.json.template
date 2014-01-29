@@ -1,7 +1,22 @@
 {
     "jira": {
-    	"url":    "[*** REMOTE JIRA URL ***]",
-    	"user":   "[*** REMOTE JIRA USER ***]",
-    	"passwd": "[*** REMOTE JIRA PASSWD ***]"
+    
+    	"url":    "[* REMOTE JIRA URL *],
+    	"user":   "[* REMOTE JIRA USER *]",
+    	"passwd": "[* REMOTE JIRA PASSWD *]",
+    	
+        "fieldmap": {
+        
+            "reporter":      "reporter",
+        	"analyst":       "customfield_11051",
+
+            "design_owner":  "customfield_11052",
+            "code_owner":    "customfield_11053",
+            "review_owner":  "customfield_11054",
+            "test_owner":    "customfield_11055",
+            "release_owner": "customfield_11056",
+
+            "assignee":      "assignee"
+        }
     }
 }

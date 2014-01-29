@@ -1,0 +1,44 @@
+#!/bin/env python
+
+import argparse
+import json
+import norris
+import os
+import pickle
+import sys
+
+# unbuffer standard out for better pipeline performance
+
+sys.stdout = os.fdopen( sys.stdout.fileno(), 'w', 0 )
+
+# parse command line arguments and check environment settings
+
+parser = argparse.ArgumentParser( description = 'Norris Issue Dump command line utility' )
+parser.add_argument( '-c', '--config', help = 'path to norris configuration file' )
+parser.add_argument( '-v', '--verbose', action = 'store_true', help = 'more verbose output' )
+args = parser.parse_args()
+
+if args.config == None:
+    if 'NRSCONFIG' in os.environ:
+        args.config = os.environ['NRSCONFIG']
+
+# load configuration
+
+config = json.load( open( args.config ) )
+
+# iterate through inbound issues, pretty-printing as we go
+
+while True:
+    try:
+        issue = pickle.load( sys.stdin )
+        print issue
+        if args.verbose:
+            print norris.Utilities.indent( str( issue.people ), 2 )
+            print norris.Utilities.indent( str( issue.lifecycle ), 2 )
+            print norris.Utilities.indent( str( issue.transitions ), 2 )
+    except EOFError:
+        break
+    
+# exit with success
+
+sys.exit( 0 )

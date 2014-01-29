@@ -1,0 +1,56 @@
+#!/bin/env python
+
+import argparse
+import jira.client
+import json
+import os
+import sys
+
+# unbuffer standard out for better pipeline performance
+
+sys.stdout = os.fdopen( sys.stdout.fileno(), 'w', 0 )
+
+# parse command line arguments and check environment settings
+
+parser = argparse.ArgumentParser( description = 'Norris Search command line utility' )
+parser.add_argument( '-c', '--config', help = 'path to norris configuration file' )
+parser.add_argument( '-q', '--query', help = 'jira query used to generate search results' )
+args = parser.parse_args()
+
+if args.config == None:
+    if 'NRSCONFIG' in os.environ:
+        args.config = os.environ['NRSCONFIG']
+
+# load configuration
+
+config = json.load( open( args.config ) )
+
+# connect to jira
+
+jira = jira.client.JIRA( basic_auth = ( config['jira']['user'], config['jira']['passwd'] ),
+                         options = { 'server': config['jira']['url'] } )
+
+# pull issue keys based on supplied query parameters
+
+ikeys = []
+start = 0; chunk = 500
+while True:
+    results = jira.search_issues(
+        '%s' % ( args.query ),
+        startAt = start, maxResults = chunk )
+    for issue in results:
+        ikeys.append( issue.key )
+    if len( results ) == 0:
+        break
+    else:
+        start += chunk
+        continue
+
+# sort keys and send to standard output
+
+for key in sorted( ikeys, key = lambda s: int( s.partition( '-' )[2] ) ):
+    print key
+    
+# exit with success
+
+sys.exit( 0 )

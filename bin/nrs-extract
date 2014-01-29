@@ -1,0 +1,44 @@
+#!/bin/env python
+
+import argparse
+import jira.client
+import json
+import norris
+import os
+import pickle
+import sys
+
+# unbuffer standard out for better pipeline performance
+
+sys.stdout = os.fdopen( sys.stdout.fileno(), 'w', 0 )
+
+# parse command line arguments and check environment settings
+
+parser = argparse.ArgumentParser( description = 'Norris Extract/Convert Issues command line utility' )
+parser.add_argument( '-c', '--config', help = 'path to norris configuration file' )
+args = parser.parse_args()
+
+if args.config == None:
+    if 'NRSCONFIG' in os.environ:
+        args.config = os.environ['NRSCONFIG']
+
+# load configuration
+
+config = json.load( open( args.config ) )
+
+# connect to jira
+
+jira = jira.client.JIRA( basic_auth = ( config['jira']['user'], config['jira']['passwd'] ),
+                         options = { 'server': config['jira']['url'] } )
+
+# for each issue key supplied on standard input, extract, convert, and pickle to standard output
+
+for line in sys.stdin:
+    ikey = line.strip()
+    jira_issue = jira.issue( ikey, expand = 'changelog' )
+    nrs_issue = norris.Issue( jira_issue, config )
+    pickle.dump( nrs_issue, sys.stdout )
+
+# exit with success
+
+sys.exit( 0 )

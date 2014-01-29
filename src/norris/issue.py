@@ -2,23 +2,25 @@ import norris
 
 class Issue( object ):
 
-    def __init__( self, jira_issue ):
+    def __init__( self, jira_issue, config ):
 
-        self._jira_issue = jira_issue
-
-        self._name = self._jira_issue.key
-        self._type = self._jira_issue.fields.issuetype.name
-        self._summary = self._jira_issue.fields.summary
-        self._status = self._jira_issue.fields.status.name
+        self._name = norris.Utilities.to_unicode( jira_issue.key )
+        self._type = norris.Utilities.to_unicode( jira_issue.fields.issuetype.name )
+        self._summary = norris.Utilities.to_unicode( jira_issue.fields.summary )
+        self._status = norris.Utilities.to_unicode( jira_issue.fields.status.name )
         
-        self._lifecycle = norris.IssueLifecycle( self._jira_issue )
-        self._transitions = norris.IssueTransitions( self._jira_issue )
+        self._people = norris.IssuePeople( jira_issue, config )
+        self._lifecycle = norris.IssueLifecycle( jira_issue )
+        self._transitions = norris.IssueTransitions( jira_issue )
 
         return None
 
     def __str__( self ):
         
-        return '%s %s, "%s" [ %s ]' % ( self._type, self._name, self._summary, self._status )
+        return '%s %s, "%s" [ %s ]' % ( self._type.encode( 'utf-8' ),
+                                        self._name.encode( 'utf-8' ),
+                                        self._summary.encode( 'utf-8' ),
+                                        self._status.encode( 'utf-8' ) )
     
     @property
     def name( self ):
@@ -35,6 +37,10 @@ class Issue( object ):
     @property
     def status( self ):
         return self._status
+    
+    @property
+    def people( self ):
+        return self._people
     
     @property
     def lifecycle( self ):
