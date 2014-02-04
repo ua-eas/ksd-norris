@@ -4,8 +4,8 @@ class IssuePeopleRecord( object ):
     
     def __init__( self, role, name ):
         
-        self._role = role
-        self._name = name
+        self._role = role.lower()
+        self._name = name.lower()
         
         return None
     

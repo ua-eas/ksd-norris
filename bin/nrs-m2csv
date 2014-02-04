@@ -1,0 +1,68 @@
+#!/bin/env python
+
+import argparse
+import csv
+import json
+import norris
+import os
+import pickle
+import sys
+
+# unbuffer standard output for better pipeline performance
+
+sys.stdout = os.fdopen( sys.stdout.fileno(), 'w', 0 )
+
+# parse command line arguments and check environment settings
+
+parser = argparse.ArgumentParser( description = 'Norris Metrics Dump command line utility' )
+parser.add_argument( '-c', '--config', help = 'path to norris configuration file' )
+args = parser.parse_args()
+
+if args.config == None:
+    if 'NRSCONFIG' in os.environ:
+        args.config = os.environ['NRSCONFIG']
+
+# load configuration
+
+config = json.load( open( args.config ) )
+
+# iterate through inbound metrics, converting to CSV as we go
+
+csvout = csv.writer( sys.stdout )
+while True:
+    try:
+        metric = pickle.load( sys.stdin )
+        
+        # output schema data
+        csvout.writerow( [ '%s metrics' % ( metric.schema ) ] )
+        
+        # output structure metrics
+        headers = [ 'from_date', 'to_date' ]
+        data = [
+            '--',
+            norris.Utilities.display_strftime( metric.to_date ),
+        ]
+        for node in metric.structure:
+            headers += node.csv_headers
+            data += node.csv_data
+        csvout.writerows( [ headers, data ] )
+
+        # output flow metrics
+        headers = [ 'from_date', 'to_date', 'period', 'interval' ]
+        data = [
+            norris.Utilities.display_strftime( metric.from_date ),
+            norris.Utilities.display_strftime( metric.to_date ),
+            norris.Utilities.timedelta_to_days( metric.period ),
+            norris.Utilities.timedelta_to_days( metric.interval ),
+        ]
+        for measure in metric.flow:
+            headers += measure.csv_headers
+            data += measure.csv_data
+        csvout.writerows( [ headers, data ] )
+
+    except EOFError:
+        break
+    
+# exit with success
+
+sys.exit( 0 )

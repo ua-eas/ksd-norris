@@ -6,6 +6,7 @@ class IssuePeople( object ):
         
         self._records = []
         
+        # this piece needs to move out to the config file eventually -- too many magic strings
         itype = jira_issue.fields.issuetype.name
         if itype == 'Feature':
             roles = [ 'reporter', 'analyst', 'design_owner', 'code_owner',

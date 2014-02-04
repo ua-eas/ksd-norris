@@ -8,13 +8,13 @@ import os
 import pickle
 import sys
 
-# unbuffer standard out for better pipeline performance
+# unbuffer standard output for better pipeline performance
 
 sys.stdout = os.fdopen( sys.stdout.fileno(), 'w', 0 )
 
 # parse command line arguments and check environment settings
 
-parser = argparse.ArgumentParser( description = 'Norris Extract/Convert Issues command line utility' )
+parser = argparse.ArgumentParser( description = 'Norris Extract Issues command line utility' )
 parser.add_argument( '-c', '--config', help = 'path to norris configuration file' )
 args = parser.parse_args()
 

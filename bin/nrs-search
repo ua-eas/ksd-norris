@@ -6,7 +6,7 @@ import json
 import os
 import sys
 
-# unbuffer standard out for better pipeline performance
+# unbuffer standard output for better pipeline performance
 
 sys.stdout = os.fdopen( sys.stdout.fileno(), 'w', 0 )
 

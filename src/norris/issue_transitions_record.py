@@ -4,8 +4,8 @@ class IssueTransitionsRecord( object ):
     
     def __init__( self, start_status, end_status, transition_date ):
         
-        self._start_status = start_status
-        self._end_status = end_status
+        self._start_status = start_status.lower()
+        self._end_status = end_status.lower()
         self._transition_date = transition_date
         
         return None

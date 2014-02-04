@@ -13,7 +13,7 @@ sys.stdout = os.fdopen( sys.stdout.fileno(), 'w', 0 )
 
 # parse command line arguments and check environment settings
 
-parser = argparse.ArgumentParser( description = 'Norris Issue Dump command line utility' )
+parser = argparse.ArgumentParser( description = 'Norris Metrics Dump command line utility' )
 parser.add_argument( '-c', '--config', help = 'path to norris configuration file' )
 parser.add_argument( '-v', '--verbose', action = 'store_true', help = 'more verbose output' )
 args = parser.parse_args()
@@ -26,16 +26,19 @@ if args.config == None:
 
 config = json.load( open( args.config ) )
 
-# iterate through inbound issues, pretty-printing as we go
+# iterate through inbound metrics, pretty-printing as we go
 
 while True:
     try:
-        issue = pickle.load( sys.stdin )
-        print issue
+        metric = pickle.load( sys.stdin )
+        print metric
         if args.verbose:
-            print norris.Utilities.indent( str( issue.people ), 2 )
-            print norris.Utilities.indent( str( issue.lifecycle ), 2 )
-            print norris.Utilities.indent( str( issue.transitions ), 2 )
+            print '  Structural Analysis:'
+            for node in metric.structure:
+                print norris.Utilities.indent( str( node ), 4 )
+            print '  Flow Analysis:'
+            for measure in metric.flow:
+                print norris.Utilities.indent( str( measure ), 4 )
     except EOFError:
         break
     

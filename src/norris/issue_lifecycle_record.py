@@ -4,7 +4,7 @@ class IssueLifecycleRecord( object ):
     
     def __init__( self, status, start_date, end_date ):
         
-        self._status = status
+        self._status = status.lower()
         self._start_date = start_date
         self._end_date = end_date
         

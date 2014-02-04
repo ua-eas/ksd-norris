@@ -1,0 +1,62 @@
+#!/bin/env python
+
+import argparse
+import datetime
+import json
+import norris
+import os
+import pickle
+import sys
+
+# unbuffer standard output for better pipeline performance
+
+sys.stdout = os.fdopen( sys.stdout.fileno(), 'w', 0 )
+
+# parse command line arguments and check environment settings
+
+parser = argparse.ArgumentParser( description = 'Norris Analyze command line utility' )
+parser.add_argument( '-c', '--config', help = 'path to norris configuration file' )
+parser.add_argument( '-s', '--schema', help = 'name of metrics schema to use for analysis' )
+parser.add_argument( '-p', '--period', type = int, default = 7,
+                                       help = 'number of previous days of rate data to analyze' )
+parser.add_argument( '-i', '--interval', type = int, default = 1,
+                                         help = 'time unit in days to use when calculating flow rates' )
+args = parser.parse_args()
+
+if args.config == None:
+    if 'NRSCONFIG' in os.environ:
+        args.config = os.environ['NRSCONFIG']
+
+# load configuration
+
+config = json.load( open( args.config ) )
+
+# pull in all issues from standard input
+
+issues = []
+while True:
+    try:
+        issue = pickle.load( sys.stdin )
+        issues.append( issue )
+    except EOFError:
+        break
+
+# do a little manipulation on supplied parameters
+
+to_date = datetime.datetime.now()
+from_date = to_date - datetime.timedelta( args.period )
+interval = datetime.timedelta( args.interval )
+
+# create metrics object and pickle to standard output
+
+metrics = norris.Metrics( issues, 
+                          args.schema,
+                          from_date,
+                          to_date,
+                          interval,
+                          config )
+pickle.dump( metrics, sys.stdout )
+ 
+# exit with success
+
+sys.exit( 0 )

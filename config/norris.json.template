@@ -16,7 +16,88 @@
             "test_owner":    "customfield_11055",
             "release_owner": "customfield_11056",
 
-            "assignee":      "assignee"
+            "assignee":      "assignee",
+            
+            "severity":      "customfield_11042",
+            "investment":    "customfield_11045"
         }
+    },
+        
+    "metrics": {
+    
+    	"feature": {
+    		
+    		"structure": [
+    			{ "name": "incoming", "type": "pool" },
+    			{ "name": "design", "type": "stage" },
+    			{ "name": "code", "type": "stage" },
+    			{ "name": "review", "type": "stage" },
+    			{ "name": "test", "type": "stage" },
+    			{ "name": "release", "type": "stage" },
+    			{ "name": "closed", "type": "pool" },
+    			{ "name": "discarded", "type": "pool" }
+    		],
+    		
+    		"flow": [
+    			{ "name": "pipeline in",
+    			  "type": "rate",
+    			  "events": [ { "from": "incoming", "to": "design - queued" } ]
+	    		},
+    			{ "name": "specification",
+    			  "type": "pressure",
+    			  "forward_events": [ { "from": "design - active", "to": "code - queued" } ],
+    			  "backward_events": [ { "from": "code - active", "to": "design - queued" } ]
+	    		},
+    			{ "name": "implementation",
+    			  "type": "pressure",
+    			  "forward_events": [ { "from": "code - active", "to": "review - queued" } ],
+    			  "backward_events": [ { "from": "review - active", "to": "code - queued" } ]
+	    		},
+	     		{ "name": "verification",
+    			  "type": "pressure",
+    			  "forward_events": [ { "from": "review - active", "to": "test - queued" } ],
+    			  "backward_events": [ { "from": "test - active", "to": "review - queued" } ]
+	    		},
+	     		{ "name": "acceptance",
+    			  "type": "pressure",
+    			  "forward_events": [ { "from": "test - active", "to": "release - queued" } ],
+    			  "backward_events": [ { "from": "release - active", "to": "test - queued" } ]
+	    		},
+    			{ "name": "pipeline out",
+    			  "type": "rate",
+    			  "events": [ { "from": "release - active", "to": "closed" } ]
+	    		},
+    		    { "name": "design friction",
+    		      "type": "rate",
+    		      "events": [ { "from": "design - stalled", "to": "discarded" } ]
+	    		},
+    		    { "name": "code friction",
+    		      "type": "rate",
+    		      "events": [ { "from": "code - stalled", "to": "discarded" } ]
+	    		},
+    		    { "name": "review friction",
+    		      "type": "rate",
+    		      "events": [ { "from": "review - stalled", "to": "discarded" } ]
+	    		},
+    		    { "name": "test friction",
+    		      "type": "rate",
+    		      "events": [ { "from": "test - stalled", "to": "discarded" } ]
+	    		},
+    		    { "name": "release friction",
+    		      "type": "rate",
+    		      "events": [ { "from": "release - stalled", "to": "discarded" } ]
+	    		},
+    			{ "name": "recycle",
+    			  "type": "rate",
+    			  "events": [ { "from": "discarded", "to": "incoming" } ]
+	    		},
+    			{ "name": "abandon",
+    			  "type": "rate",
+    			  "events": [{ "from": "discarded", "to": "closed" } ]
+	    		}
+	    		
+	    	]
+    	
+    	}
     }
 }
